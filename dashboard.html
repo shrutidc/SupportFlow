@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | SupportFlow</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .split-dashboard {
+            display: flex;
+            gap: var(--sp-4);
+            flex-wrap: wrap;
+        }
+
+        .dashboard-col {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: var(--sp-4);
+        }
+
+        .panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: var(--sp-4);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .panel h2 {
+            margin-bottom: var(--sp-3);
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+
+        .queue-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: var(--sp-2);
+        }
+
+        .queue-row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--sp-2) 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .queue-row:last-child {
+            border-bottom: none;
+        }
+
+        .activity-feed {
+            display: flex;
+            flex-direction: column;
+            gap: var(--sp-3);
+        }
+
+        .activity-item {
+            display: flex;
+            gap: var(--sp-2);
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .activity-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-light);
+            border: 1px solid var(--accent-color);
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo" style="display: flex; align-items: center; gap: 8px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-color);">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                    SupportFlow
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item active">
+                    <span>Dashboard</span>
+                </a>
+                <a href="index.html" class="nav-item" id="nav-tickets">
+                    <span>Tickets</span>
+                </a>
+                <a href="index.html?view=assigned" class="nav-item" id="nav-assigned">
+                    <span>Assigned to Me</span>
+                </a>
+                <a href="reports.html" class="nav-item">
+                    <span>Reports</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h1 id="pageTitle">Dashboard</h1>
+                </div>
+                <div class="topbar-right">
+                    <div class="avatar dropdown-trigger" onclick="window.location.href='settings.html'"
+                        style="cursor: pointer;">AG
+                    </div>
+                </div>
+            </header>
+
+            <!-- Scrollable Content -->
+            <div class="content-scroll">
+
+                <!-- Metrics Grid -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-title">Total Open Tickets</div>
+                        <div class="metric-value">6</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">Escalated Tickets</div>
+                        <div class="metric-value" style="color: var(--status-escalated);">2</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">Tickets Due Soon</div>
+                        <div class="metric-value" style="color: var(--priority-medium);">3</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">Avg First Response</div>
+                        <div class="metric-value">1.4h</div>
+                    </div>
+                </div>
+
+                <div class="split-dashboard">
+                    <!-- Column 1 -->
+                    <div class="dashboard-col">
+                        <div class="panel">
+                            <h2>Tickets Nearing SLA Breach</h2>
+                            <div class="card-container table-wrapper"
+                                style="box-shadow: none; border: 1px solid var(--border-color);">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Subject</th>
+                                            <th>SLA Deadline</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr onclick="window.location.href='ticket.html?id=SF-1002'">
+                                            <td class="font-medium">SF-1002</td>
+                                            <td>API returning 500 errors</td>
+                                            <td style="color: var(--status-escalated);" class="font-semibold">Feb 20,
+                                                10:15 AM</td>
+                                        </tr>
+                                        <tr onclick="window.location.href='ticket.html?id=SF-1006'">
+                                            <td class="font-medium">SF-1006</td>
+                                            <td>Integration with Salesforce failing</td>
+                                            <td style="color: var(--status-escalated);" class="font-semibold">Feb 20,
+                                                09:30 AM</td>
+                                        </tr>
+                                        <tr onclick="window.location.href='ticket.html?id=SF-1005'">
+                                            <td class="font-medium">SF-1005</td>
+                                            <td>How do I add a new team member?</td>
+                                            <td style="color: var(--priority-medium);" class="font-semibold">Feb 20,
+                                                02:00 PM</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 3 -->
+                    <div class="dashboard-col">
+                        <div class="panel">
+                            <h2>Recent Activity</h2>
+                            <div class="activity-feed">
+                                <div class="activity-item">
+                                    <div class="activity-dot"></div>
+                                    <div><strong>SF-1002</strong> was escalated to Engineering Queue by System.</div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-dot" style="border-color: var(--priority-low);"></div>
+                                    <div><strong>AG</strong> repied to SF-1003.</div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-dot" style="border-color: var(--priority-low);"></div>
+                                    <div><strong>AG</strong> closed SF-1009.</div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-dot"></div>
+                                    <div><strong>SF-1006</strong> was escalated to Engineering Queue by System.</div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-dot" style="border-color: var(--priority-low);"></div>
+                                    <div><strong>New Ticket SF-1010</strong> was created by Julia Child.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

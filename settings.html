@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | SupportFlow</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .settings-layout {
+            display: flex;
+            gap: var(--sp-5);
+            margin-top: var(--sp-4);
+        }
+
+        .settings-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--sp-1);
+            max-width: 200px;
+        }
+
+        .tab-link {
+            padding: var(--sp-2);
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .tab-link:hover {
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        .tab-link.active {
+            background: var(--accent-light);
+            color: var(--accent-color);
+        }
+
+        .settings-content {
+            flex: 3;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: var(--sp-4);
+        }
+
+        .form-group {
+            margin-bottom: var(--sp-4);
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--sp-1);
+        }
+
+        .form-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .form-input:disabled {
+            background: var(--bg-color);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: var(--sp-2);
+            margin-bottom: var(--sp-2);
+        }
+
+        .checkbox-row label {
+            font-size: 14px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: var(--sp-4) 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">SupportFlow</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <span>Dashboard</span>
+                </a>
+                <a href="index.html" class="nav-item" id="nav-tickets">
+                    <span>Tickets</span>
+                </a>
+                <a href="index.html?view=assigned" class="nav-item" id="nav-assigned">
+                    <span>Assigned to Me</span>
+                </a>
+                <a href="reports.html" class="nav-item">
+                    <span>Reports</span>
+                </a>
+                <a href="settings.html" class="nav-item active">
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h1 id="pageTitle">Settings</h1>
+                </div>
+                <div class="topbar-right">
+                    <button class="btn btn-primary" onclick="alert('Prototype: Settings saved (simulated).')">Save
+                        Changes</button>
+                    <div class="avatar dropdown-trigger" onclick="window.location.href='settings.html'"
+                        style="cursor: pointer; margin-left: var(--sp-2);">AG</div>
+                </div>
+            </header>
+
+            <div class="content-scroll">
+                <div class="settings-layout">
+                    <!-- Left Tabs -->
+                    <div class="settings-nav">
+                        <div class="tab-link active" onclick="switchTab('profile')">Profile</div>
+                        <div class="tab-link" onclick="switchTab('notifications')">Notifications</div>
+                        <div class="tab-link" onclick="switchTab('appearance')">Appearance</div>
+                        <div class="tab-link" onclick="switchTab('sla')">SLA Rules</div>
+                    </div>
+
+                    <!-- Right Form Area -->
+                    <div class="settings-content">
+                        <!-- Profile -->
+                        <div id="tab-profile" class="tab-pane">
+                            <h2 style="font-size: 18px; margin-bottom: var(--sp-4);">Profile Settings</h2>
+
+                            <div class="form-group">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-input" value="Agent Garcia">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-input" value="agarcia@supportflow.internal" disabled>
+                                <div class="text-sm text-secondary" style="margin-top: 4px;">Contact IT to change your
+                                    internal email address.</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Role</label>
+                                <input type="text" class="form-input" value="Tier 2 Support Specialist" disabled>
+                            </div>
+                        </div>
+
+                        <!-- Notifications -->
+                        <div id="tab-notifications" class="tab-pane" style="display: none;">
+                            <h2 style="font-size: 18px; margin-bottom: var(--sp-4);">Global Notification Preferences
+                            </h2>
+
+                            <div class="checkbox-row">
+                                <input type="checkbox" id="n1" checked>
+                                <label for="n1">Notify me when a ticket is assigned to me</label>
+                            </div>
+                            <div class="checkbox-row">
+                                <input type="checkbox" id="n2" checked>
+                                <label for="n2">Notify me on new customer replies in my tickets</label>
+                            </div>
+                            <div class="checkbox-row">
+                                <input type="checkbox" id="n3">
+                                <label for="n3">Notify me of all Engineering Escalations</label>
+                            </div>
+                        </div>
+
+                        <!-- Appearance -->
+                        <div id="tab-appearance" class="tab-pane" style="display: none;">
+                            <h2 style="font-size: 18px; margin-bottom: var(--sp-4);">Appearance Options</h2>
+                            <p class="text-secondary" style="margin-bottom: var(--sp-4);">Select your preferred theme
+                                for the SupportFlow console.</p>
+
+                            <div class="checkbox-row" style="margin-bottom: var(--sp-3);">
+                                <input type="radio" name="themeMode" id="theme-light" checked>
+                                <label for="theme-light" style="font-weight: 500;">Light Mode (Default)</label>
+                            </div>
+                            <div class="checkbox-row" style="margin-bottom: var(--sp-3);">
+                                <input type="radio" name="themeMode" id="theme-dark">
+                                <label for="theme-dark" style="font-weight: 500;">Dark Mode</label>
+                            </div>
+                            <div class="checkbox-row" style="margin-bottom: var(--sp-3);">
+                                <input type="radio" name="themeMode" id="theme-system">
+                                <label for="theme-system" style="font-weight: 500;">System Preference</label>
+                            </div>
+                        </div>
+
+                        <!-- SLA Rules -->
+                        <div id="tab-sla" class="tab-pane" style="display: none;">
+                            <h2 style="font-size: 18px; margin-bottom: var(--sp-4);">SLA Global Rules (Display Only)
+                            </h2>
+                            <div class="info-list" style="max-width: 400px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <span class="text-secondary">Low Priority SLA</span>
+                                    <span class="font-medium">72 hours</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <span class="text-secondary">Medium Priority SLA</span>
+                                    <span class="font-medium">48 hours</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <span class="text-secondary">High Priority SLA</span>
+                                    <span class="font-medium">24 hours</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span class="text-secondary">Escalation SLA Override</span>
+                                    <span class="font-medium" style="color: var(--status-escalated);">4 hours</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.style.display = 'none');
+            document.getElementById('tab-' + tabId).style.display = 'block';
+
+            const links = document.querySelectorAll('.tab-link');
+            links.forEach(el => el.classList.remove('active'));
+
+            links.forEach(el => {
+                const attr = el.getAttribute('onclick');
+                if (attr && attr.includes(tabId)) {
+                    el.classList.add('active');
+                }
+            });
+        }
+    </script>
+    <script src="main.js"></script>
+</body>
+
+</html>

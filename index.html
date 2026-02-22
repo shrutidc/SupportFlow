@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tickets | SupportFlow</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="sidebar-logo" style="display: flex; align-items: center; gap: 8px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-color);">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                    SupportFlow
+                </div>
+                <button id="sidebarToggle"
+                    style="background:none; border:none; cursor:pointer; color:var(--text-secondary);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <span>Dashboard</span>
+                </a>
+                <a href="index.html" class="nav-item" id="nav-tickets">
+                    <span>Tickets</span>
+                </a>
+                <a href="index.html?view=assigned" class="nav-item" id="nav-assigned">
+                    <span>Assigned to Me</span>
+                </a>
+                <a href="reports.html" class="nav-item">
+                    <span>Reports</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h1 id="pageTitle">Tickets</h1>
+                </div>
+                <div class="topbar-right">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search by subject...">
+                    <div class="filter-group">
+                        <button class="filter-btn active" data-status="All">All</button>
+                        <button class="filter-btn" data-status="New">New</button>
+                        <button class="filter-btn" data-status="In Progress">In Progress</button>
+                        <button class="filter-btn" data-status="Escalated">Escalated</button>
+                        <button class="filter-btn" data-status="Closed">Closed</button>
+                    </div>
+                    <div class="avatar dropdown-trigger" onclick="window.location.href='settings.html'"
+                        style="cursor: pointer;">AG
+                    </div>
+                </div>
+            </header>
+
+            <!-- Scrollable Content -->
+            <div class="content-scroll">
+                <!-- Metrics Grid -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-title">Open Tickets</div>
+                        <div class="metric-value" id="metric-open">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">Escalated</div>
+                        <div class="metric-value" id="metric-escalated">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">Avg Response Time</div>
+                        <div class="metric-value">1.4h</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">Customer Satisfaction</div>
+                        <div class="metric-value">98%</div>
+                    </div>
+                </div>
+
+                <!-- Data Table -->
+                <div class="card-container table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ticket ID</th>
+                                <th>Customer</th>
+                                <th>Subject</th>
+                                <th>Assigned To</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th style="text-align: right">Last Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ticketTableBody">
+                            <!-- Rows rendered by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Set active nav visually
+        const searchParams = new URLSearchParams(window.location.search);
+        const view = searchParams.get('view');
+        if (view === 'assigned') {
+            document.getElementById('nav-assigned').classList.add('active');
+        } else {
+            document.getElementById('nav-tickets').classList.add('active');
+        }
+    </script>
+    <script src="data.js"></script>
+    <script src="main.js"></script>
+</body>
+
+</html>

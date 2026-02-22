@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Detail | SupportFlow</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="sidebar-logo" style="display: flex; align-items: center; gap: 8px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-color);">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                    SupportFlow
+                </div>
+                <button id="sidebarToggle"
+                    style="background:none; border:none; cursor:pointer; color:var(--text-secondary);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <span>Dashboard</span>
+                </a>
+                <a href="index.html" class="nav-item">
+                    <span>Tickets</span>
+                </a>
+                <a href="index.html?view=assigned" class="nav-item">
+                    <span>Assigned to Me</span>
+                </a>
+                <a href="reports.html" class="nav-item">
+                    <span>Reports</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="btn btn-secondary" onclick="window.history.back()"
+                        style="padding: 4px 8px; font-size: 13px;">&larr; Back</button>
+                    <h1>Ticket Viewer</h1>
+                </div>
+                <div class="topbar-right">
+                    <div class="avatar dropdown-trigger" onclick="window.location.href='settings.html'"
+                        style="cursor: pointer;">AG
+                    </div>
+                </div>
+            </header>
+
+            <!-- Scrollable Content -->
+            <div class="content-scroll" id="ticketContent">
+                <!-- Data injected by JS -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="data.js"></script>
+    <script src="ticket.js"></script>
+</body>
+
+</html>

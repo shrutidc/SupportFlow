@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports | SupportFlow</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: var(--sp-4);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            margin-top: var(--sp-4);
+        }
+
+        .panel h2 {
+            margin-bottom: var(--sp-3);
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="sidebar-logo" style="display: flex; align-items: center; gap: 8px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-color);">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                    SupportFlow
+                </div>
+                <button id="sidebarToggle"
+                    style="background:none; border:none; cursor:pointer; color:var(--text-secondary);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <span>Dashboard</span>
+                </a>
+                <a href="index.html" class="nav-item" id="nav-tickets">
+                    <span>Tickets</span>
+                </a>
+                <a href="index.html?view=assigned" class="nav-item" id="nav-assigned">
+                    <span>Assigned to Me</span>
+                </a>
+                <a href="reports.html" class="nav-item active">
+                    <span>Reports</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h1 id="pageTitle">Reports</h1>
+                </div>
+                <div class="topbar-right">
+                    <div class="avatar dropdown-trigger" onclick="window.location.href='settings.html'"
+                        style="cursor: pointer;">AG
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-scroll">
+
+                <!-- Metrics Grid -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-title">Tickets Created (Week)</div>
+                        <div class="metric-value">142</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">Tickets Resolved (Week)</div>
+                        <div class="metric-value">118</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">Avg Resolution Time</div>
+                        <div class="metric-value">22h</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">CSAT Score</div>
+                        <div class="metric-value" style="color: var(--priority-low)">94%</div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Top Issue Categories</h2>
+                    <div class="card-container table-wrapper"
+                        style="box-shadow: none; border: 1px solid var(--border-color);">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Volume (Past 30 Days)</th>
+                                    <th>Trend</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-medium"><span class="chip">Billing</span></td>
+                                    <td>45</td>
+                                    <td style="color: var(--status-escalated);">&uarr; +12%</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium"><span class="chip">Account Access</span></td>
+                                    <td>32</td>
+                                    <td style="color: var(--priority-low);">&darr; -5%</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium"><span class="chip">Integration</span></td>
+                                    <td>28</td>
+                                    <td style="color: var(--priority-low);">&darr; -1%</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium"><span class="chip">Bug</span></td>
+                                    <td>15</td>
+                                    <td class="text-secondary">&mdash; 0%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>
