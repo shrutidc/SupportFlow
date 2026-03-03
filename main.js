@@ -1,18 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const tickets = window.SupportData || [];
 
-    // Apply saved theme immediately
     const savedTheme = localStorage.getItem('themeMode') || 'light';
-    if (savedTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-    }
-
-    // Apply saved sidebar state
-    const savedSidebar = localStorage.getItem('sidebarCollapsed');
-    if (savedSidebar === 'true') {
-        const sidebar = document.querySelector('.sidebar');
-        if (sidebar) sidebar.classList.add('collapsed');
-    }
 
     // DOM Elements
     const tbody = document.getElementById("ticketTableBody");
@@ -50,28 +39,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Handle mock navigation for sidebar (for things not implemented)
-    const navItems = document.querySelectorAll(".nav-item");
-    navItems.forEach(nav => {
-        nav.addEventListener("click", (e) => {
-            if (nav.getAttribute("href") === "#") {
-                e.preventDefault();
-                navItems.forEach(n => n.classList.remove("active"));
-                nav.classList.add("active");
-                alert("Prototype: " + nav.innerText.trim() + " view is not implemented in this demo.");
-            }
-        });
-    });
+    // Removed mock navigation alert since links are now real
 
     // Sidebar Toggle Logic
     const sidebarToggle = document.getElementById("sidebarToggle");
     if (sidebarToggle) {
         sidebarToggle.addEventListener("click", () => {
-            const sidebar = document.querySelector(".sidebar");
-            if (sidebar) {
-                sidebar.classList.toggle("collapsed");
-                localStorage.setItem("sidebarCollapsed", sidebar.classList.contains("collapsed"));
-            }
+            document.documentElement.classList.toggle("sidebar-collapsed");
+            localStorage.setItem("sidebarCollapsed", document.documentElement.classList.contains("sidebar-collapsed"));
         });
     }
 
@@ -127,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (currentQueue === "assigned") {
                 matchesQueue = t.assignedTo === "You";
             } else if (currentQueue === "escalations") {
-                matchesQueue = t.status === "Escalated" || t.priority === "High";
+                matchesQueue = t.status === "Escalated";
             }
 
             // Status match
@@ -141,47 +116,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function updateMetrics() {
-        if (currentQueue === "assigned") {
-            // "in the assigned to me section let the blocks give a description of the tickects taht are assigned to me. like the number os tickects assignmed to me, the status and p[riority."
-            let myOpenCount = 0;
-            let myHighPriority = 0;
-            let myEscalated = 0;
-            let myClosed = 0;
+        let openCount = 0;
+        let escalatedCount = 0;
 
-            const myTickets = tickets.filter(t => t.assignedTo === "You");
+        const queueTickets = tickets.filter(t => {
+            if (currentQueue === "assigned") return t.assignedTo === "You";
+            if (currentQueue === "escalations") return t.status === "Escalated";
+            return true;
+        });
 
-            myTickets.forEach(t => {
-                if (t.status === "New" || t.status === "In Progress") myOpenCount++;
-                if (t.priority === "High") myHighPriority++;
-                if (t.status === "Escalated") myEscalated++;
-                if (t.status === "Closed") myClosed++;
-            });
-
-            const grid = document.querySelector(".metrics-grid");
-            if (grid) {
-                grid.innerHTML = `
-                    <div class="metric-card"><div class="metric-title">My Tickets (Open)</div><div class="metric-value">${myOpenCount}</div></div>
-                    <div class="metric-card"><div class="metric-title">High Priority</div><div class="metric-value" style="color: var(--priority-high);">${myHighPriority}</div></div>
-                    <div class="metric-card"><div class="metric-title">Escalated</div><div class="metric-value" style="color: var(--status-escalated);">${myEscalated}</div></div>
-                    <div class="metric-card"><div class="metric-title">Closed</div><div class="metric-value text-secondary">${myClosed}</div></div>
-                `;
+        queueTickets.forEach(t => {
+            if (t.status === "New" || t.status === "In Progress") {
+                openCount++;
             }
-        } else {
-            // Standard Dashboard Metrics
-            let openCount = 0;
-            let escalatedCount = 0;
+            if (t.status === "Escalated") {
+                escalatedCount++;
+            }
+        });
 
-            tickets.forEach(t => {
-                if (t.status === "New" || t.status === "In Progress") {
-                    openCount++;
-                }
-                if (t.status === "Escalated") {
-                    escalatedCount++;
-                }
-            });
-
-            if (metricOpen) metricOpen.textContent = openCount;
-            if (metricEscalated) metricEscalated.textContent = escalatedCount;
+        const grid = document.querySelector(".metrics-grid");
+        if (grid) {
+            grid.innerHTML = `
+                <div class="metric-card"><div class="metric-title">Open Tickets</div><div class="metric-value" id="metric-open">${openCount}</div></div>
+                <div class="metric-card"><div class="metric-title">Escalated</div><div class="metric-value" id="metric-escalated" style="color: var(--status-escalated);">${escalatedCount}</div></div>
+                <div class="metric-card"><div class="metric-title">Avg Response Time</div><div class="metric-value">1.4h</div></div>
+                <div class="metric-card"><div class="metric-title">Customer Satisfaction</div><div class="metric-value">98%</div></div>
+            `;
         }
     }
 
@@ -194,7 +154,23 @@ document.addEventListener("DOMContentLoaded", () => {
         const filtered = getFilteredTickets();
 
         if (filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 32px;">No tickets found matching your criteria.</td></tr>`;
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 48px;">
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: var(--bg-secondary); padding: 32px; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <h3 style="margin: 0; color: var(--text-primary);">No tickets found</h3>
+                            <p style="margin: 0; color: var(--text-secondary);">Try adjusting your filters.</p>
+                            <button class="btn btn-primary" id="clearFiltersBtn" style="margin-top: 8px;">Clear filters</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            setTimeout(() => {
+                const clearBtn = document.getElementById("clearFiltersBtn");
+                if (clearBtn) {
+                    clearBtn.addEventListener("click", clearFilters);
+                }
+            }, 0);
             return;
         }
 
@@ -220,5 +196,116 @@ document.addEventListener("DOMContentLoaded", () => {
                 </tr>
             `;
         }).join("");
+    }
+
+    function clearFilters() {
+        if (searchInput) {
+            searchInput.value = "";
+            currentSearch = "";
+        }
+        currentStatus = "All";
+        if (filterBtns) {
+            filterBtns.forEach(b => {
+                b.classList.remove("active");
+                if (b.dataset.status === "All") b.classList.add("active");
+            });
+        }
+
+        // Reset queue to view default
+        if (viewParam === "assigned") currentQueue = "assigned";
+        else if (viewParam === "escalations") {
+            currentQueue = "escalations";
+            currentStatus = "Escalated";
+            if (filterBtns) {
+                filterBtns.forEach(b => {
+                    b.classList.remove("active");
+                    if (b.dataset.status === "Escalated") b.classList.add("active");
+                });
+            }
+        } else {
+            currentQueue = "all";
+        }
+
+        if (tbody) renderTable();
+    }
+
+    // --- Client-Side Routing for index.html views ---
+    const isIndexPage = window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/');
+    if (isIndexPage) {
+        const indexNavs = document.querySelectorAll('a.nav-item[href^="index.html"]');
+        indexNavs.forEach(nav => {
+            nav.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetHref = nav.getAttribute('href');
+                window.history.pushState({}, '', targetHref);
+
+                // Parse new view
+                const newParams = new URLSearchParams(targetHref.split('?')[1] || "");
+                const newView = newParams.get('view');
+
+                // Update state
+                if (newView === 'assigned') currentQueue = 'assigned';
+                else if (newView === 'escalations') currentQueue = 'escalations';
+                else currentQueue = 'all';
+
+                // Update UI active navs
+                document.querySelectorAll('.sidebar-nav .nav-item').forEach(n => n.classList.remove('active'));
+                nav.classList.add('active');
+
+                // Update title, status, filters
+                updateViewState();
+            });
+        });
+
+        window.addEventListener('popstate', () => {
+            const newParams = new URLSearchParams(window.location.search);
+            const newView = newParams.get('view');
+
+            if (newView === 'assigned') currentQueue = 'assigned';
+            else if (newView === 'escalations') currentQueue = 'escalations';
+            else currentQueue = 'all';
+
+            // update active nav visually
+            document.querySelectorAll('.sidebar-nav .nav-item').forEach(n => n.classList.remove('active'));
+            if (currentQueue === 'assigned') {
+                const n = document.getElementById('nav-assigned');
+                if (n) n.classList.add('active');
+            } else if (currentQueue === 'escalations') {
+                const n = document.querySelector('a.nav-item[href="index.html?view=escalations"]');
+                if (n) n.classList.add('active');
+            } else {
+                const n = document.getElementById('nav-tickets');
+                if (n) n.classList.add('active');
+            }
+
+            updateViewState();
+        });
+
+        function updateViewState() {
+            const titleEle = document.getElementById("pageTitle");
+            if (titleEle) {
+                if (currentQueue === "assigned") titleEle.textContent = "Assigned to Me";
+                else if (currentQueue === "escalations") titleEle.textContent = "Escalations";
+                else titleEle.textContent = "Tickets";
+            }
+
+            if (currentQueue === "escalations") currentStatus = "Escalated";
+            else currentStatus = "All"; // default for others
+
+            if (filterBtns) {
+                filterBtns.forEach(b => {
+                    b.classList.remove("active");
+                    if (b.dataset.status === currentStatus) b.classList.add("active");
+                });
+            }
+
+            if (searchInput) {
+                searchInput.value = "";
+                currentSearch = "";
+            }
+
+            updateMetrics();
+            if (tbody) renderTable();
+        }
     }
 });

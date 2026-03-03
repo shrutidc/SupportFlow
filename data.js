@@ -211,7 +211,7 @@ const SupportData = [
     category: "Billing",
     priority: "Low",
     status: "New",
-    assignedTo: "You",
+    assignedTo: null,
     createdAt: "2026-02-20T10:00:00Z",
     lastUpdated: "2026-02-20T10:00:00Z",
     slaDeadline: "2026-02-23T10:00:00Z",

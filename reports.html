@@ -22,6 +22,10 @@
             color: var(--text-primary);
         }
     </style>
+    <script>
+        if (localStorage.getItem('themeMode') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        if (localStorage.getItem('sidebarCollapsed') === 'true') document.documentElement.classList.add('sidebar-collapsed');
+    </script>
 </head>
 
 <body>

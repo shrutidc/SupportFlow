@@ -6,18 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const urlParams = new URLSearchParams(window.location.search);
     const ticketId = urlParams.get("id");
 
-    // Handle mock navigation for sidebar
-    const navItems = document.querySelectorAll(".nav-item");
-    navItems.forEach(nav => {
-        nav.addEventListener("click", (e) => {
-            if (nav.getAttribute("href") === "#") {
-                e.preventDefault();
-                navItems.forEach(n => n.classList.remove("active"));
-                nav.classList.add("active");
-                alert("Prototype: " + nav.innerText.trim() + " view is not implemented in this demo.");
-            }
-        });
-    });
+    // Navigation works via standard links
 
     const ticket = tickets.find(t => t.id === ticketId);
 
@@ -71,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
                 <div>
                     <!-- Visual dropdown for status -->
-                    <select class="search-input" style="width: 140px; padding: 6px 12px;" onchange="alert('Prototype: Status updated to ' + this.value + '.')">
+                    <select class="search-input" style="width: 140px; padding: 6px 12px;">
                         <option ${t.status === 'New' ? 'selected' : ''}>New</option>
                         <option ${t.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
                         <option ${t.status === 'Escalated' ? 'selected' : ''}>Escalated</option>
@@ -93,8 +82,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         <div class="composer">
                             <textarea placeholder="Type your reply to ${t.customerName}..."></textarea>
                             <div class="composer-actions">
-                                <button class="btn btn-primary" onclick="alert('Prototype: Reply sent to ' + ${JSON.stringify(t.customerName).replace(/\"/g, '&quot;')} + '.')">Send Reply</button>
-                                <button class="btn btn-secondary" onclick="alert('Prototype: Internal note added.')">Add Internal Note</button>
+                                <button class="btn btn-primary">Send Reply</button>
+                                <button class="btn btn-secondary">Add Internal Note</button>
                             </div>
                         </div>
                     </div>
@@ -147,27 +136,6 @@ document.addEventListener("DOMContentLoaded", () => {
                             </div>
                         </div>
                     </div>
-
-                    <!-- AI Assist Box -->
-                    <div class="info-card ai-card">
-                        <div class="info-card-header ai-card-header">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                            AI Assist
-                        </div>
-                        <div class="info-list">
-                            <div class="info-item ai-sentiment">
-                                <span class="info-label">Sentiment</span>
-                                <span class="info-value">${t.sentiment}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Suggested Action</span>
-                                <div class="ai-suggestion">
-                                    ${t.sentiment === "Frustrated" ? "Apologize for the delay and escalate priority." : "Acknowledge receipt and provide an ETA."}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
         `;

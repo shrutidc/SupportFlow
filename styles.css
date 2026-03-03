@@ -144,6 +144,7 @@ p {
   display: grid;
   grid-template-columns: var(--sidebar-width) 1fr;
   min-height: 100vh;
+  transition: grid-template-columns 0.2s ease;
 }
 
 /* Sidebar */
@@ -199,19 +200,19 @@ p {
 }
 
 /* Collapsible Sidebar modifier */
-.app-container:has(.sidebar.collapsed) {
+html.sidebar-collapsed .app-container {
   --sidebar-width: 64px;
 }
 
-.sidebar.collapsed .sidebar-logo {
+html.sidebar-collapsed .sidebar-logo {
   display: none;
 }
 
-.sidebar.collapsed .nav-item span {
+html.sidebar-collapsed .nav-item span {
   display: none;
 }
 
-.sidebar.collapsed .nav-item {
+html.sidebar-collapsed .nav-item {
   justify-content: center;
 }
 
@@ -646,33 +647,6 @@ tbody tr:hover {
   font-size: 14px;
   color: var(--text-primary);
   font-weight: 500;
-}
-
-/* AI Assist Box */
-.ai-card {
-  background: linear-gradient(to bottom right, #F8FAFC, #EEF2FF);
-  border: 1px solid #C7D2FE;
-}
-
-.ai-card-header {
-  color: var(--accent-color);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.ai-sentiment {
-  margin-bottom: var(--sp-2);
-}
-
-.ai-suggestion {
-  background: white;
-  padding: var(--sp-2);
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  font-size: 13px;
-  color: var(--text-secondary);
-  font-style: italic;
 }
 
 /* Responsive */

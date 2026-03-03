@@ -95,6 +95,10 @@
             margin: var(--sp-4) 0;
         }
     </style>
+    <script>
+        if (localStorage.getItem('themeMode') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        if (localStorage.getItem('sidebarCollapsed') === 'true') document.documentElement.classList.add('sidebar-collapsed');
+    </script>
 </head>
 
 <body>
@@ -130,8 +134,7 @@
                     <h1 id="pageTitle">Settings</h1>
                 </div>
                 <div class="topbar-right">
-                    <button class="btn btn-primary" onclick="alert('Prototype: Settings saved (simulated).')">Save
-                        Changes</button>
+                    <button class="btn btn-primary" onclick="saveSettings()">Save Changes</button>
                     <div class="avatar dropdown-trigger" onclick="window.location.href='settings.html'"
                         style="cursor: pointer; margin-left: var(--sp-2);">AG</div>
                 </div>
@@ -255,6 +258,31 @@
                 }
             });
         }
+
+        // Save logic specific to settings
+        function saveSettings() {
+            const keyInput = document.getElementById("geminiKey");
+            if (keyInput) {
+                localStorage.setItem("geminiApiKey", keyInput.value);
+            }
+
+            // Show brief flash notification
+            const btn = document.querySelector(".btn-primary");
+            if (btn) {
+                const originalText = btn.textContent;
+                btn.textContent = "Saved!";
+                setTimeout(() => { btn.textContent = originalText; }, 2000);
+            }
+        }
+
+        // On load, populate forms
+        document.addEventListener("DOMContentLoaded", () => {
+            const keyInput = document.getElementById("geminiKey");
+            const existingKey = localStorage.getItem("geminiApiKey");
+            if (keyInput && existingKey) {
+                keyInput.value = existingKey;
+            }
+        });
     </script>
     <script src="main.js"></script>
 </body>
