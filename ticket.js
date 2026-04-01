@@ -1,21 +1,71 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const tickets = window.SupportData || [];
+document.addEventListener("DOMContentLoaded", async () => {
     const contentArea = document.getElementById("ticketContent");
 
     // Extract ID from URL
     const urlParams = new URLSearchParams(window.location.search);
     const ticketId = urlParams.get("id");
 
-    // Navigation works via standard links
-
-    const ticket = tickets.find(t => t.id === ticketId);
-
-    if (!ticket) {
+    if (!ticketId) {
         renderNotFound();
         return;
     }
 
-    renderTicket(ticket);
+    // Helper to show toasts
+    function showToast(message, type = 'success') {
+        const toast = document.createElement("div");
+        toast.style.position = "fixed";
+        toast.style.bottom = "24px";
+        toast.style.right = "24px";
+        toast.style.padding = "12px 24px";
+        toast.style.background = type === 'error' ? "var(--status-closed)" : "var(--status-new)";
+        toast.style.color = "white";
+        toast.style.borderRadius = "6px";
+        toast.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+        toast.style.zIndex = "1000";
+        toast.style.fontWeight = "500";
+        toast.style.transition = "opacity 0.3s ease";
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = "0";
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Handle Back Button
+    const btnBack = document.getElementById("btnBackToQueue");
+    if (btnBack) {
+        btnBack.addEventListener("click", () => {
+            const fromParam = urlParams.get("from");
+            if (fromParam) {
+                // Determine if fromParam already has query params
+                const base = 'index.html';
+                window.location.href = base + decodeURIComponent(fromParam);
+            } else if (document.referrer && document.referrer.includes('index.html')) {
+                window.location.href = document.referrer;
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+    }
+
+    await loadTicket();
+
+    async function loadTicket() {
+        try {
+            const res = await fetch(`/api/tickets/${ticketId}`);
+            if (!res.ok) {
+                renderNotFound();
+                return;
+            }
+            const ticket = await res.json();
+            renderTicket(ticket);
+        } catch (err) {
+            console.error("Error loading ticket:", err);
+            renderNotFound();
+        }
+    }
 
     function formatDate(isoString) {
         const date = new Date(isoString);
@@ -39,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let messagesHtml = t.messages.map(msg => {
             const isCustomer = msg.sender === "customer";
             const alignClass = isCustomer ? "customer" : "agent";
-            const senderName = isCustomer ? t.customerName : t.assignedTo || "Agent";
+            const senderName = isCustomer ? t.customer.name : t.assignedTo || "Agent";
             return `
                 <div class="message ${alignClass}">
                     <div class="message-meta">${senderName} &bull; ${formatDate(msg.timestamp)}</div>
@@ -48,19 +98,22 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
         }).join("");
 
+        const canClaim = !t.assignedTo && t.status !== 'Closed' && t.status !== 'Escalated';
+
         contentArea.innerHTML = `
             <!-- Ticket Header -->
             <div class="ticket-header">
                 <div class="ticket-header-left">
                     <h1 style="margin-bottom: 4px;">${t.subject}</h1>
                     <div class="ticket-meta-row">
-                        <span class="text-secondary font-medium">${t.id}</span>
+                        <span class="text-secondary font-medium">${t.ticketId}</span>
                         <span class="badge ${priorityClass}">${t.priority}</span>
+                        ${canClaim ? `<button id="btnClaimTicket" class="btn btn-primary" style="padding: 4px 8px; font-size: 12px; margin-left: 8px;">Claim Ticket</button>` : ''}
                     </div>
                 </div>
                 <div>
                     <!-- Visual dropdown for status -->
-                    <select class="search-input" style="width: 140px; padding: 6px 12px;">
+                    <select id="statusSelect" class="search-input" style="width: 140px; padding: 6px 12px;">
                         <option ${t.status === 'New' ? 'selected' : ''}>New</option>
                         <option ${t.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
                         <option ${t.status === 'Escalated' ? 'selected' : ''}>Escalated</option>
@@ -80,10 +133,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         
                         <!-- Reply Composer -->
                         <div class="composer">
-                            <textarea placeholder="Type your reply to ${t.customerName}..."></textarea>
+                            <textarea id="replyBody" placeholder="Type your reply to ${t.customer.name}..."></textarea>
                             <div class="composer-actions">
-                                <button class="btn btn-primary">Send Reply</button>
-                                <button class="btn btn-secondary">Add Internal Note</button>
+                                <button id="btnSendReply" class="btn btn-primary">Send Reply</button>
+                                <button id="btnInternalNote" class="btn btn-secondary">Add Internal Note</button>
                             </div>
                         </div>
                     </div>
@@ -97,19 +150,19 @@ document.addEventListener("DOMContentLoaded", () => {
                         <div class="info-list">
                             <div class="info-item">
                                 <span class="info-label">Name</span>
-                                <span class="info-value">${t.customerName}</span>
+                                <span class="info-value">${t.customer.name}</span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Company</span>
-                                <span class="info-value">${t.company}</span>
+                                <span class="info-value">${t.customer.company}</span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Email</span>
-                                <span class="info-value"><a href="mailto:${t.email}" style="color: var(--accent-color); text-decoration: none;">${t.email}</a></span>
+                                <span class="info-value"><a href="mailto:${t.customer.email}" style="color: var(--accent-color); text-decoration: none;">${t.customer.email}</a></span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Phone</span>
-                                <span class="info-value">${t.phone}</span>
+                                <span class="info-value">${t.customer.phone}</span>
                             </div>
                         </div>
                     </div>
@@ -139,5 +192,82 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
             </div>
         `;
+
+        // Attach event listeners
+        document.getElementById("statusSelect").addEventListener("change", async (e) => {
+            const newStatus = e.target.value;
+            try {
+                await fetch(`/api/tickets/${ticketId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                loadTicket(); // Refresh
+            } catch (err) {
+                console.error("Failed to update status", err);
+            }
+        });
+
+        const btnClaim = document.getElementById("btnClaimTicket");
+        if (btnClaim) {
+            btnClaim.addEventListener("click", async () => {
+                // Loading state
+                btnClaim.disabled = true;
+                const originalText = btnClaim.textContent;
+                btnClaim.textContent = "Claiming...";
+
+                try {
+                    const res = await fetch(`/api/tickets/${ticketId}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ assignedTo: "You", status: "In Progress" })
+                    });
+
+                    if (!res.ok) {
+                        if (res.status === 409) {
+                            showToast("Ticket is already assigned to someone else.", "error");
+                        } else {
+                            showToast("Failed to claim ticket.", "error");
+                        }
+                        btnClaim.disabled = false;
+                        btnClaim.textContent = originalText;
+                        loadTicket(); // Refresh to get current state
+                        return;
+                    }
+
+                    showToast("Ticket successfully claimed!", "success");
+                    loadTicket(); // Refresh
+                } catch (err) {
+                    console.error("Failed to claim ticket", err);
+                    showToast("Network error. Could not claim.", "error");
+                    btnClaim.disabled = false;
+                    btnClaim.textContent = originalText;
+                }
+            });
+        }
+
+        async function sendMessage(body) {
+            if (!body.trim()) return;
+            try {
+                await fetch(`/api/tickets/${ticketId}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sender: 'agent', body })
+                });
+                loadTicket(); // Refresh to show new message
+            } catch (err) {
+                console.error("Failed to send message", err);
+            }
+        }
+
+        document.getElementById("btnSendReply").addEventListener("click", () => {
+            const body = document.getElementById("replyBody").value;
+            sendMessage(body);
+        });
+
+        document.getElementById("btnInternalNote").addEventListener("click", () => {
+            const body = "[Internal Note] " + document.getElementById("replyBody").value;
+            sendMessage(body);
+        });
     }
 });

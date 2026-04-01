@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const tickets = window.SupportData || [];
+    window.tickets = [];
 
     const savedTheme = localStorage.getItem('themeMode') || 'light';
 
@@ -15,12 +15,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const urlParams = new URLSearchParams(window.location.search);
     const viewParam = urlParams.get("view");
 
-    let currentSearch = "";
-    let currentStatus = "All"; // "All", "New", "In Progress", "Escalated", "Closed"
-    let currentQueue = "all"; // "all", "assigned", "escalations"
-
-    if (viewParam === "assigned") currentQueue = "assigned";
-    if (viewParam === "escalations") currentQueue = "escalations";
+    let currentSearch = urlParams.get("q") || "";
+    let currentStatus = urlParams.get("status") || "All";
+    let currentQueue = viewParam || "all";
 
     // Set page title and active states based on view
     const titleEle = document.getElementById("pageTitle");
@@ -29,13 +26,20 @@ document.addEventListener("DOMContentLoaded", () => {
         if (currentQueue === "escalations") titleEle.textContent = "Escalations";
     }
 
-    // Handle initial Status default for Escalations view
-    if (currentQueue === "escalations") {
+    if (currentQueue === "escalations" && !urlParams.has("status")) {
         currentStatus = "Escalated";
-        // Visually update the filter button
-        document.querySelectorAll(".filter-btn").forEach(b => {
+    }
+
+    // Set initial input value
+    if (searchInput && currentSearch) {
+        searchInput.value = currentSearch;
+    }
+
+    // Visually update the filter button
+    if (filterBtns) {
+        filterBtns.forEach(b => {
             b.classList.remove("active");
-            if (b.dataset.status === "Escalated") b.classList.add("active");
+            if (b.dataset.status === currentStatus) b.classList.add("active");
         });
     }
 
@@ -69,15 +73,50 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    async function fetchTickets() {
+        if (!tbody) return;
+
+        // Build query string
+        const params = new URLSearchParams();
+        if (currentStatus !== "All") params.set("status", currentStatus);
+        if (currentSearch) params.set("q", currentSearch);
+        if (currentQueue === "assigned") params.set("view", "assigned");
+        if (currentQueue === "escalations") params.set("view", "escalations");
+
+        try {
+            const res = await fetch('/api/tickets?' + params.toString());
+            const data = await res.json();
+            window.tickets = data.tickets || [];
+            updateMetrics();
+            renderTable();
+        } catch (err) {
+            console.error("Failed to fetch tickets", err);
+        }
+    }
+
+    function updateUrl() {
+        const params = new URLSearchParams();
+        if (currentStatus !== "All") params.set("status", currentStatus);
+        if (currentSearch) params.set("q", currentSearch);
+        if (currentQueue !== "all" && currentQueue !== "undefined" && currentQueue) params.set("view", currentQueue);
+
+        const newUrl = window.location.pathname + '?' + params.toString();
+        window.history.replaceState({}, '', newUrl);
+    }
+
     // Initial render
-    updateMetrics();
-    if (tbody) renderTable();
+    fetchTickets();
 
     // Setup input listeners
+    let searchTimeout;
     if (searchInput) {
         searchInput.addEventListener("input", (e) => {
-            currentSearch = e.target.value.toLowerCase();
-            if (tbody) renderTable();
+            currentSearch = e.target.value;
+            updateUrl();
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                fetchTickets();
+            }, 300);
         });
     }
 
@@ -90,28 +129,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Update state and re-render
                 currentStatus = btn.dataset.status;
-                if (tbody) renderTable();
+                updateUrl();
+                fetchTickets();
             });
-        });
-    }
-
-    function getFilteredTickets() {
-        return tickets.filter(t => {
-            // Queue match (from URL parameter)
-            let matchesQueue = true;
-            if (currentQueue === "assigned") {
-                matchesQueue = t.assignedTo === "You";
-            } else if (currentQueue === "escalations") {
-                matchesQueue = t.status === "Escalated";
-            }
-
-            // Status match
-            const matchesStatus = currentStatus === "All" || t.status === currentStatus;
-
-            // Search match (subject text)
-            const matchesSearch = t.subject.toLowerCase().includes(currentSearch);
-
-            return matchesQueue && matchesStatus && matchesSearch;
         });
     }
 
@@ -119,13 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let openCount = 0;
         let escalatedCount = 0;
 
-        const queueTickets = tickets.filter(t => {
-            if (currentQueue === "assigned") return t.assignedTo === "You";
-            if (currentQueue === "escalations") return t.status === "Escalated";
-            return true;
-        });
-
-        queueTickets.forEach(t => {
+        window.tickets.forEach(t => {
             if (t.status === "New" || t.status === "In Progress") {
                 openCount++;
             }
@@ -151,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function renderTable() {
-        const filtered = getFilteredTickets();
+        const filtered = window.tickets;
 
         if (filtered.length === 0) {
             tbody.innerHTML = `
@@ -180,16 +194,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Style closed tickets as muted row entirely? The prompt says "visually styled as muted" for Closed state.
             const rowStyle = t.status === "Closed" ? 'style="opacity: 0.6;"' : '';
+            const fromParam = encodeURIComponent(window.location.search);
 
             return `
-                <tr onclick="window.location.href='ticket.html?id=${t.id}'" ${rowStyle}>
-                    <td class="font-medium">${t.id}</td>
+                <tr onclick="window.location.href='ticket.html?id=${t.ticketId}&from=' + '${fromParam}'" ${rowStyle}>
+                    <td class="font-medium">${t.ticketId}</td>
                     <td>
-                        <div class="font-medium">${t.customerName}</div>
-                        <div class="text-sm text-secondary">${t.company}</div>
+                        <div class="font-medium">${t.customer.name}</div>
+                        <div class="text-sm text-secondary">${t.customer.company || "—"}</div>
                     </td>
                     <td>${t.subject}</td>
-                    <td><div class="text-sm">${t.assignedTo || "Unassigned"}</div></td>
+                    <td><div class="text-sm">${t.assignedTo ? t.assignedTo : "Unassigned"}</div></td>
                     <td><span class="badge ${priorityClass}">${t.priority}</span></td>
                     <td><span class="badge ${statusClass}">${t.status}</span></td>
                     <td style="text-align: right" class="text-secondary">${formatDate(t.lastUpdated)}</td>
@@ -226,7 +241,8 @@ document.addEventListener("DOMContentLoaded", () => {
             currentQueue = "all";
         }
 
-        if (tbody) renderTable();
+        updateUrl();
+        fetchTickets();
     }
 
     // --- Client-Side Routing for index.html views ---
@@ -304,8 +320,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 currentSearch = "";
             }
 
-            updateMetrics();
-            if (tbody) renderTable();
+            updateUrl();
+            fetchTickets();
         }
     }
 });
